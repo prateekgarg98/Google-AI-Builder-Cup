@@ -1,0 +1,75 @@
+swagger: '2.0'
+info:
+  title: AI Builder Cup Enterprise Agent API
+  description: Single API endpoint protected with API key and routed to Cloud Run.
+  version: 1.0.0
+schemes:
+  - https
+produces:
+  - application/json
+consumes:
+  - application/json
+
+# 1. Define the API Key security scheme
+securityDefinitions:
+  api_key:
+    type: apiKey
+    name: key
+    in: query
+
+paths:
+  /:
+    post:
+      summary: Query the enterprise knowledge agent
+      operationId: runEnterpriseAgent
+      x-google-backend:
+        address: <<Cloud Run URL>>
+        protocol: h2
+        deadline: 600
+      # 2. Enforce the API key on this specific route
+      security:
+        - api_key: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - query
+            properties:
+              query:
+                type: string
+                description: The user question or command.
+                example: What are the production deployment requirements?
+              session_id:
+                type: string
+                description: Optional session UUID for multi-turn follow-up context.
+                example: 513de117-51a7-4fe5-8aa4-0b666cce0ed3
+              request_id:
+                type: string
+                description: Optional unique request identifier for auditing.
+                example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      responses:
+        '200':
+          description: Successful response from Cloud Run
+          schema:
+            type: object
+        '400':
+          description: Bad request
+        '403':
+          description: Invalid or missing API key
+        '500':
+          description: Internal server error
+
+    options:
+      summary: CORS preflight
+      operationId: corsPreflight
+      x-google-backend:
+        address: <<Cloud Run URL>>
+        protocol: h2
+        deadline: 600
+      # Do NOT add security here, or browsers will block the request
+      responses:
+        '204':
+          description: CORS preflight response
