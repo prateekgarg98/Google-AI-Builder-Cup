@@ -49,7 +49,7 @@ graph TB
     %% 3. State & Memory Layer
     subgraph Memory["Firestore (Conversation State)"]
         FS_Sessions[("📄 /sessions")]
-        FS_Audits[("📁 /requests")]
+        FS_Audits[("📁 /requests & /approvals")]
     end
     Planner <--> |"Fetch Context & Save State"| FS_Sessions
     Planner -. "Audit Logging" .-> FS_Audits
@@ -78,6 +78,7 @@ graph TB
     MCP --> DevOpsMCP
     Gateway -. "Approval API Proxy" .-> HITL
     MCP <--> HITL
+    HITL <--> |"Persist & Validate Approvals"| FS_Audits
 
     %% 7. External Enterprise Systems
     subgraph External["Enterprise Systems"]
@@ -98,7 +99,6 @@ TechTitans-EnterpriseAssistant/
 ├── frontend/                   # React/Vite UI & Express BFF
 │   ├── src/                    # UI components, session memory, Markdown/Mermaid
 │   ├── server.js               # Express proxy server & Cloud Run entry point
-│   ├── deploy.sh               # Frontend deployment script
 │   └── cloudbuild.yaml         # Google Cloud Build configuration
 ├── backend/
 │   ├── orchestrator/           # LangGraph Planner & Agent Nodes (main.py)
@@ -106,7 +106,6 @@ TechTitans-EnterpriseAssistant/
 │   │   ├── gateway/            # Gateway, policy, provider and approval modules
 │   │   ├── Dockerfile
 │   │   ├── requirements.txt
-│   │   └── deploy.sh
 │   └── devops-mcp/             # Custom DevOps MCP Server
 │       └── server/              # FastMCP application logic and state
 ├── infrastructure/             # API Gateway & Cloud Run configurations
@@ -116,16 +115,6 @@ TechTitans-EnterpriseAssistant/
 ## 💻 Frontend Development
 
 The frontend uses React and Vite, served through an Express Backend-for-Frontend (BFF). The BFF forwards API requests to the API Gateway while keeping sensitive configuration on the server.
-
-### Run Locally
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Ensure the frontend and Express BFF are configured to use the appropriate local endpoints for API requests.
 
 ## 🧪 How to Test
 
