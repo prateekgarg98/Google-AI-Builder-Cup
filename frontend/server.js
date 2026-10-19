@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const UPSTREAM_URL = process.env.UPSTREAM_URL || "https://api-gw---9-5wn92d82.uc.gateway.dev";
+const UPSTREAM_URL = process.env.UPSTREAM_URL;
 
 app.use(express.json());
 
